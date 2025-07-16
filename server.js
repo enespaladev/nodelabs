@@ -11,8 +11,11 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const messageRoutes = require('./routes/message.routes');
 const conversationRoutes = require('./routes/conversation.routes');
+const { socketHandler } = require('./sockets/socketHandler');
 
 dotenv.config();
+
+console.log('🚀 SERVER STARTING...');
 
 const app = express();
 const server = http.createServer(app);
@@ -37,15 +40,11 @@ app.get('/', (req, res) => {
   res.send('Nodelabs Backend is running ✅');
 });
 
-// Socket.IO bağlantısı (şimdilik boş, ileride doldurulacak)
-io.on('connection', (socket) => {
-  console.log('🔌 Yeni bir kullanıcı bağlandı:', socket.id);
-});
-
 // Veritabanı ve servis bağlantıları
 connectDB();
 connectRedis();
 initRabbitMQ();
+socketHandler(io);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
