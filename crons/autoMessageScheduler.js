@@ -1,6 +1,9 @@
 const cron = require("node-cron");
 const AutoMessage = require("../models/AutoMessage");
 const User = require("../models/User");
+const Conversation = require("../models/Conversation");
+const { connectDB } = require("../config/db");
+require("dotenv").config();
 
 const getRandomMessage = () => {
   const messages = [
@@ -24,9 +27,20 @@ const planAutoMessages = async () => {
     const sender = shuffled[i];
     const recipient = shuffled[i + 1];
 
+    let conversation = await Conversation.findOne({
+      participants: { $all: [sender._id, recipient._id] },
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [sender._id, recipient._id],
+      });
+    }
+
     await AutoMessage.create({
       sender: sender._id,
       recipient: recipient._id,
+      conversationId: conversation._id,
       content: getRandomMessage(),
       sendDate: new Date(), // şu an için hemen gönderilsin
     });
@@ -40,3 +54,9 @@ cron.schedule("0 2 * * *", async () => {
   console.log("⏰ AutoMessage cron job started...");
   await planAutoMessages();
 });
+
+// Test amaçlı hemen çalıştır
+(async () => {
+  await connectDB(); // <--- MongoDB bağlantısını başlat
+  await planAutoMessages();
+})();
