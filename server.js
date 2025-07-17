@@ -17,6 +17,8 @@ const conversationRoutes = require('./routes/conversation.routes');
 const { socketHandler } = require('./sockets/socketHandler');
 require("./crons/autoMessageScheduler");
 const onlineRoutes = require('./routes/online.routes');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 
 dotenv.config();
 
@@ -43,6 +45,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/conversation', conversationRoutes);
 app.use('/api', onlineRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Root Test Route
 app.get('/', (req, res) => {
