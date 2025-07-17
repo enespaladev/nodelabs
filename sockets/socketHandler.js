@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
-const { getRedisClient } = require('../config/redis');
+const { redisClient } = require('../services/redis.service');
 
 const connectedUsers = new Map();
 
 exports.socketHandler = (io) => {
-  console.log('🧠 socketHandler yükleniyor...');
+  console.log('socketHandler yükleniyor...');
+
   io.use((socket, next) => {
-    console.log('🔥 Middleware tetiklendi');
+    console.log('Middleware tetiklendi');
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error('Token gerekli'));
 
@@ -20,15 +21,12 @@ exports.socketHandler = (io) => {
   });
 
   io.on('connection', async (socket) => {
-    console.log('✅ Socket bağlantısı kuruldu');
     const userId = socket.user.id;
-    const redis = getRedisClient();
 
     connectedUsers.set(userId, socket.id);
-    await redis.sAdd('online_users', userId);
+    await redisClient.sAdd('online_users', userId);
 
-    console.log('🔌 Yeni bağlantı geldi');
-    console.log(`🔌 ${userId} bağlandı (${socket.id})`);
+    console.log(`${userId} bağlandı (${socket.id})`);
 
     io.emit('user_online', userId);
 
@@ -50,9 +48,29 @@ exports.socketHandler = (io) => {
 
     socket.on('disconnect', async () => {
       connectedUsers.delete(userId);
-      await redis.sRem('online_users', userId);
+      await redisClient.sRem('online_users', userId);
       io.emit('user_offline', userId);
       console.log(`❌ ${userId} bağlantısı koptu`);
     });
+    
+    // TYPING EVENTS
+    socket.on('typing', ({ conversationId }) => {
+      socket.to(conversationId).emit('user_typing', { userId });
+    });
+  
+    socket.on('stop_typing', ({ conversationId }) => {
+      socket.to(conversationId).emit('user_stop_typing', { userId });
+    });
+  
+    // READ RECEIPT
+    socket.on('message_read', ({ messageId, conversationId }) => {
+      io.to(conversationId).emit('message_read_receipt', {
+        messageId,
+        readerId: userId,
+        readAt: new Date()
+      });
+    });
   });
+
+
 };

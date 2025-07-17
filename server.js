@@ -4,8 +4,10 @@ const cors = require('cors');
 const socketIO = require('socket.io');
 const dotenv = require('dotenv');
 const { connectDB } = require('./config/db');
-const { connectRedis } = require('./config/redis');
+// const { connectRedis } = require('./config/redis');
+const { connectRedis } = require('./services/redis.service');
 const { initRabbitMQ } = require('./config/rabbitmq');
+const { startConsumer } = require('./services/rabbitmq/consumer');
 
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
@@ -15,7 +17,7 @@ const { socketHandler } = require('./sockets/socketHandler');
 
 dotenv.config();
 
-console.log('🚀 SERVER STARTING...');
+console.log('SERVER STARTING...');
 
 const app = express();
 const server = http.createServer(app);
@@ -24,6 +26,8 @@ const io = socketIO(server, {
     origin: '*',
   },
 });
+
+global.io = io;
 
 // Middleware
 app.use(cors());
@@ -37,16 +41,23 @@ app.use('/api/conversation', conversationRoutes);
 
 // Root Test Route
 app.get('/', (req, res) => {
-  res.send('Nodelabs Backend is running ✅');
+  res.send('Nodelabs Backend is running');
 });
 
 // Veritabanı ve servis bağlantıları
-connectDB();
-connectRedis();
-initRabbitMQ();
+(async () => {
+  await connectDB();
+  await connectRedis();
+  await startConsumer(); // RabbitMQ Consumer başlat
+
+  server.listen(process.env.PORT || 5000, () => {
+    console.log(`🚀 Server is running on port ${process.env.PORT || 5000}`);
+  });
+})();
+
 socketHandler(io);
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Sunucu ${PORT} portunda çalışıyor...`);
-});
+// const PORT = process.env.PORT || 5000;
+// server.listen(PORT, () => {
+//   console.log(`Sunucu ${PORT} portunda çalışıyor...`);
+// });
