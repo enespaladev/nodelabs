@@ -17,7 +17,6 @@ const conversationRoutes = require('./routes/conversation.routes');
 const { socketHandler } = require('./sockets/socketHandler');
 require("./crons/autoMessageScheduler");
 const onlineRoutes = require('./routes/online.routes');
-const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 
@@ -31,19 +30,12 @@ const io = socketIO(server, {
   },
 });
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 dakika
-  max: 100, // Her IP için max 100 istek
-  message: "Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.",
-});
-
 global.io = io;
 
 // Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.use(limiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
