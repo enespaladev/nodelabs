@@ -1,7 +1,7 @@
 const { io } = require("socket.io-client");
 
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzdmYjMxZjMzY2Y5MGYzM2ZkZmY5MCIsImlhdCI6MTc1MjY5NDE1NCwiZXhwIjoxNzUyNjk3NzU0fQ.SVksPEphDWavhHZWBeCEDZkVk2MQDABMSBGrUJ4UCnc";
-const conversationId = "6877ff4ad356c5e8687d84b7";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzhhOTIyYWFhNGRkNTE3MmQ3OWJiOSIsImlhdCI6MTc1Mjc2OTkyOSwiZXhwIjoxNzUyNzczNTI5fQ.kQbUqoKqUzbZGE1xgAFG7ddhlCOEnVeEzXf7RBoVmBc";
+const conversationId = "6878a922aaa4dd5172d79bb9";
 
 const socket = io("http://localhost:5000", {
   auth: { token },

@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
-const { redisClient } = require('../services/redis.service');
 const Message = require("../models/Message");
-
 const connectedUsers = new Map();
+
+const {
+  addOnlineUser,
+  removeOnlineUser,
+  redisClient,
+} = require('../services/redis.service');
 
 exports.socketHandler = (io) => {
   console.log('socketHandler yükleniyor...');
@@ -26,7 +30,9 @@ exports.socketHandler = (io) => {
     const userId = socket.user.id;
 
     connectedUsers.set(userId, socket.id);
-    await redisClient.sAdd('online_users', userId);
+    await addOnlineUser(userId);
+    const onlineUsers = await redisClient.sMembers("online_users");
+    console.log("📡 Şu anda online kullanıcılar:", onlineUsers);
 
     console.log(`${userId} bağlandı (${socket.id})`);
 
@@ -64,7 +70,7 @@ exports.socketHandler = (io) => {
 
     socket.on('disconnect', async () => {
       connectedUsers.delete(userId);
-      await redisClient.sRem('online_users', userId);
+      await removeOnlineUser(userId);
       io.emit('user_offline', userId);
       console.log(`❌ ${userId} bağlantısı koptu`);
     });

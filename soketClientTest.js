@@ -1,7 +1,7 @@
 const { io } = require("socket.io-client");
 
 // Kullanıcı bilgileri (örnek token ve kullanıcı ID'leri test için ayarlanmalı)
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzhhOGNmYWFhNGRkNTE3MmQ3OWJiNiIsImlhdCI6MTc1MjczNzk5OSwiZXhwIjoxNzUyNzQxNTk5fQ.Uezr0KYdOzjFKsazEMVIO-qjUrQKNv_ZwoxkH6qB03s"; // Buraya geçerli bir JWT token yaz
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzhhOGNmYWFhNGRkNTE3MmQ3OWJiNiIsImlhdCI6MTc1Mjc2OTg3OCwiZXhwIjoxNzUyNzczNDc4fQ.d2ziQ7okETgD19Weser1vq9K2Ju8c58f-Mqt82pI0rc"; // Buraya geçerli bir JWT token yaz
 const userId = "6878a8cfaaa4dd5172d79bb6"; // Kullanıcı ID'si
 
 // Socket bağlantısı başlat

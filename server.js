@@ -14,7 +14,8 @@ const userRoutes = require('./routes/user.routes');
 const messageRoutes = require('./routes/message.routes');
 const conversationRoutes = require('./routes/conversation.routes');
 const { socketHandler } = require('./sockets/socketHandler');
-require("./crons/autoMessageScheduler"); // Dosya yolunu uygun şekilde ayarla
+require("./crons/autoMessageScheduler");
+const onlineRoutes = require('./routes/online.routes');
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/conversation', conversationRoutes);
+app.use('/api', onlineRoutes);
 
 // Root Test Route
 app.get('/', (req, res) => {
