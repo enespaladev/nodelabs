@@ -5,6 +5,8 @@ exports.listUsers = async (req, res) => {
     const users = await User.find().select('-password');
     res.json(users);
   } catch (err) {
-    res.status(500).json({ message: 'Kullanıcılar alınamadı', error: err.message });
+    const error = new Error('Kullanıcılar alınamadı');
+    error.statusCode = 500;
+    next(error);
   }
 };

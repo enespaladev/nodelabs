@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/message.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
+const { sendMessageValidator, getMessagesValidator } = require('../middlewares/validators/messageValidator');
+const validate = require('../middlewares/validators/validate');
 
 /**
  * @swagger
@@ -30,7 +32,7 @@ const { authMiddleware } = require('../middlewares/auth.middleware');
  *       200:
  *         description: Mesajlar listesi döner
  */
-router.get('/:conversationId', authMiddleware, messageController.getMessagesByConversation);
+router.get('/:conversationId', authMiddleware, getMessagesValidator, validate, messageController.getMessagesByConversation);
 /**
  * @swagger
  * /message:
@@ -57,6 +59,6 @@ router.get('/:conversationId', authMiddleware, messageController.getMessagesByCo
  *       201:
  *         description: Mesaj başarıyla gönderildi
  */
-router.post('/', authMiddleware, messageController.sendMessage); // mesaj gönder
+router.post('/', authMiddleware, sendMessageValidator, validate, messageController.sendMessage); // mesaj gönder
 
 module.exports = router;

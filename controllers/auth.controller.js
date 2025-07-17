@@ -18,7 +18,9 @@ exports.register = async (req, res) => {
 
     res.status(201).json({ token, refreshToken });
   } catch (err) {
-    res.status(500).json({ message: 'Sunucu hatası', error: err.message });
+    const error = new Error('Sunucu hatası');
+    error.statusCode = 500;
+    next(error);
   }
 };
 
@@ -35,7 +37,9 @@ exports.login = async (req, res) => {
 
     res.json({ token, refreshToken });
   } catch (err) {
-    res.status(500).json({ message: 'Sunucu hatası', error: err.message });
+    const error = new Error('Sunucu hatası');
+    error.statusCode = 500;
+    next(error);
   }
 };
 
@@ -60,6 +64,8 @@ exports.refresh = async (req, res) => {
     const token = generateToken(user);
     res.json({ token });
   } catch (err) {
-    res.status(401).json({ message: 'Refresh token hatalı veya süresi dolmuş' });
+    const error = new Error('Refresh token hatalı veya süresi dolmuş');
+    error.statusCode = 500;
+    next(error);
   }
 };

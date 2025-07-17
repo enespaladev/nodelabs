@@ -3,6 +3,9 @@ const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { authLimiter } = require('../middlewares/rateLimit.middleware');
+const { registerValidator } = require('../middlewares/validators/authValidator');
+const { loginValidator } = require('../middlewares/validators/authValidator');
+const validate = require('../middlewares/validators/validate');
 
 /**
  * @swagger
@@ -40,7 +43,7 @@ const { authLimiter } = require('../middlewares/rateLimit.middleware');
  *       400:
  *         description: Geçersiz istek
  */
-router.post('/register', authLimiter, authController.register);
+router.post('/register', registerValidator, validate, authLimiter, authController.register);
 /**
  * @swagger
  * /auth/login:
@@ -64,7 +67,7 @@ router.post('/register', authLimiter, authController.register);
  *       401:
  *         description: Geçersiz kimlik bilgisi
  */
-router.post('/login', authLimiter, authController.login);
+router.post('/login', loginValidator, validate, authLimiter, authController.login);
 /**
  * @swagger
  * /auth/refresh:

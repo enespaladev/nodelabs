@@ -1,5 +1,6 @@
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
+const elasticClient = require('../config/elastic');
 
 exports.getMessagesByConversation = async (req, res) => {
   try {
@@ -9,12 +10,13 @@ exports.getMessagesByConversation = async (req, res) => {
 
     res.json(messages);
   } catch (err) {
-    res.status(500).json({ message: 'Mesajlar alınamadı', error: err.message });
+    const error = new Error('Mesajlar alınamadı');
+    error.statusCode = 500;
+    next(error);
   }
 };
 
-// Ekstra: Mesaj gönderme
-exports.sendMessage = async (req, res) => {
+exports.sendMessage = async (req, res, next) => {
   try {
     const { conversationId, content } = req.body;
 
@@ -24,8 +26,21 @@ exports.sendMessage = async (req, res) => {
       content,
     });
 
+    await elasticClient.index({
+      index: 'messages',
+      document: {
+        _id: message._id.toString(),
+        conversationId: message.conversationId.toString(),
+        sender: message.sender.toString(),
+        content: message.content,
+        createdAt: message.createdAt,
+      },
+    });
+
     res.status(201).json(message);
   } catch (err) {
-    res.status(500).json({ message: 'Mesaj gönderilemedi', error: err.message });
+    const error = new Error('Mesaj gönderilemedi');
+    error.statusCode = 500;
+    next(error);
   }
 };

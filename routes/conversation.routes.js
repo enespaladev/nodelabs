@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const conversationController = require('../controllers/conversation.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
+const { createConversationValidator } = require('../middlewares/validators/conversationValidator');
+const validate  = require('../middlewares/validators/validate');
 
 /**
  * @swagger
@@ -33,7 +35,13 @@ const { authMiddleware } = require('../middlewares/auth.middleware');
  *       201:
  *         description: Konuşma başarıyla oluşturuldu
  */
-router.post('/', authMiddleware, conversationController.createConversation);
+router.post(
+    '/', 
+    authMiddleware, 
+    ...createConversationValidator, 
+    validate, 
+    conversationController.createConversation
+);
 /**
  * @swagger
  * /conversation:

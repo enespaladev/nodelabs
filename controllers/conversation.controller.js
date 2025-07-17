@@ -8,7 +8,9 @@ exports.getUserConversations = async (req, res) => {
 
     res.json(conversations);
   } catch (err) {
-    res.status(500).json({ message: 'Konuşmalar alınamadı', error: err.message });
+    const error = new Error('Konuşmalar alınamadı');
+    error.statusCode = 500;
+    next(error);
   }
 };
 
@@ -31,6 +33,8 @@ exports.createConversation = async (req, res) => {
     await conversation.save();
     res.status(201).json(conversation);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const error = new Error('Konuşma oluşturulamadı');
+    error.statusCode = 500;
+    next(error);
   }
 };

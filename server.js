@@ -19,6 +19,9 @@ require("./crons/autoMessageScheduler");
 const onlineRoutes = require('./routes/online.routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
+const logger = require('./config/logger');
+const errorMiddleware = require('./middlewares/error.middleware');
+const searchRoutes = require('./routes/search.routes');
 
 dotenv.config();
 
@@ -46,11 +49,14 @@ app.use('/api/message', messageRoutes);
 app.use('/api/conversation', conversationRoutes);
 app.use('/api', onlineRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/search', searchRoutes);
 
 // Root Test Route
 app.get('/', (req, res) => {
   res.send('Nodelabs Backend is running');
 });
+
+logger.info('Sunucu başlatılıyor...');
 
 // Veritabanı ve servis bağlantıları
 (async () => {

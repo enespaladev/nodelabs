@@ -1,7 +1,7 @@
 const { io } = require("socket.io-client");
 
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzdkMDFmZjQ1OGMxYWQ0ZjM0ZGM5MCIsImlhdCI6MTc1MjY5NDUwOCwiZXhwIjoxNzUyNjk4MTA4fQ.NL6w-shMBwjQR2WyImC8pKlwuC21ykquY_XAI9JN9ps";
-const conversationId = "6877ff4ad356c5e8687d84b7";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzhhOTIyYWFhNGRkNTE3MmQ3OWJiOSIsImlhdCI6MTc1Mjc4MTg1MCwiZXhwIjoxNzUyNzg1NDUwfQ.P2W5CC2XMPrUpirLpYcezeB0sVNMXkIV2OuVF6yRuK0"; // geçerli token
+const conversationId = "6878ef3fb10474f2ff74eff9";
 
 const socket = io("http://localhost:5000", {
   auth: { token },
@@ -11,7 +11,6 @@ socket.on("connect", () => {
   console.log("🧑‍💼 [User1] Bağlandı");
   socket.emit("join_room", conversationId);
 
-  // Birkaç saniye sonra mesaj göndersin
   setTimeout(() => {
     socket.emit("send_message", {
       conversationId,
@@ -22,4 +21,8 @@ socket.on("connect", () => {
 
 socket.on("message_received", (msg) => {
   console.log("📥 [User1] Mesaj alındı:", msg);
+});
+
+socket.on("connect_error", (err) => {
+  console.error("❌ Bağlantı hatası:", err.message);
 });
