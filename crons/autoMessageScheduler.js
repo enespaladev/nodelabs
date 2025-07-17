@@ -1,15 +1,42 @@
-// crons/autoMessageScheduler.js
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const { generateAutoMessages } = require("../services/autoMessage.service");
+const cron = require("node-cron");
+const AutoMessage = require("../models/AutoMessage");
+const User = require("../models/User");
 
-dotenv.config();
+const getRandomMessage = () => {
+  const messages = [
+    "Selam! Umarım günün güzel geçiyordur",
+    "Merhaba, nasılsın?",
+    "Bugün harika görünüyorsun!",
+    "Kod yazmak gibisi yok!"
+  ];
+  return messages[Math.floor(Math.random() * messages.length)];
+};
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+const shuffleArray = (array) => {
+  return array.sort(() => Math.random() - 0.5);
+};
 
-mongoose.connection.once("open", async () => {
-  console.log("MongoDB connected - Auto Message Scheduler");
-  await generateAutoMessages();
-  console.log("Auto messages created.");
-  mongoose.disconnect();
+const planAutoMessages = async () => {
+  const users = await User.find({});
+  const shuffled = shuffleArray(users);
+
+  for (let i = 0; i < shuffled.length - 1; i += 2) {
+    const sender = shuffled[i];
+    const recipient = shuffled[i + 1];
+
+    await AutoMessage.create({
+      sender: sender._id,
+      recipient: recipient._id,
+      content: getRandomMessage(),
+      sendDate: new Date(), // şu an için hemen gönderilsin
+    });
+  }
+
+  console.log("AutoMessages planned.");
+};
+
+// ⏰ Her gece saat 02:00'de çalıştır
+cron.schedule("0 2 * * *", async () => {
+  console.log("⏰ AutoMessage cron job started...");
+  await planAutoMessages();
 });

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { redisClient } = require('../services/redis.service');
+const Message = require("../models/Message");
 
 const connectedUsers = new Map();
 
@@ -14,6 +15,7 @@ exports.socketHandler = (io) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       socket.user = decoded;
+      socket.userId = decoded.id;
       next();
     } catch (err) {
       return next(new Error('Geçersiz token'));
@@ -35,15 +37,29 @@ exports.socketHandler = (io) => {
       console.log(`${userId} -> ${roomId} odasına katıldı`);
     });
 
-    socket.on('send_message', ({ conversationId, content }) => {
-      const message = {
-        conversationId,
-        sender: userId,
-        content,
-        createdAt: new Date(),
-      };
-
-      io.to(conversationId).emit('message_received', message);
+    socket.on("send_message", async ({ conversationId, content }) => {
+      try {
+        console.log("Mesaj kaydediliyor...");
+        console.log("🔐 Socket user ID:", socket.userId);
+        // 1. Veritabanına mesaj kaydet
+        const newMessage = await Message.create({
+          conversationId,
+          sender: socket.userId,
+          content,
+        });
+    
+        // 2. Odaya mesaj yayınla
+        io.to(conversationId).emit("message_received", {
+          conversationId,
+          sender: newMessage.sender,
+          content: newMessage.content,
+          createdAt: newMessage.createdAt,
+        });
+    
+      } catch (err) {
+        console.error("send_message hatası:", err.message);
+        socket.emit("error", { message: "Mesaj gönderilemedi." });
+      }
     });
 
     socket.on('disconnect', async () => {

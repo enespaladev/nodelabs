@@ -1,8 +1,8 @@
 const { io } = require("socket.io-client");
 
 // Kullanıcı bilgileri (örnek token ve kullanıcı ID'leri test için ayarlanmalı)
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzdkMDFmZjQ1OGMxYWQ0ZjM0ZGM5MCIsImlhdCI6MTc1MjY4OTYyMiwiZXhwIjoxNzUyNjkzMjIyfQ.Lyv0V4dNrph6xdOOw6gnCeRuU43JR98ipFnWGM1jdLc"; // Buraya geçerli bir JWT token yaz
-const userId = "6877d01ff458c1ad4f34dc90"; // Kullanıcı ID'si
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzhhOGNmYWFhNGRkNTE3MmQ3OWJiNiIsImlhdCI6MTc1MjczNzk5OSwiZXhwIjoxNzUyNzQxNTk5fQ.Uezr0KYdOzjFKsazEMVIO-qjUrQKNv_ZwoxkH6qB03s"; // Buraya geçerli bir JWT token yaz
+const userId = "6878a8cfaaa4dd5172d79bb6"; // Kullanıcı ID'si
 
 // Socket bağlantısı başlat
 const socket = io("http://localhost:5000", {
@@ -14,7 +14,7 @@ const socket = io("http://localhost:5000", {
 socket.on("connect", () => {
   console.log("✅ Socket bağlandı");
 
-  const conversationId = "6877f737f1e1cf4ff9f1e5e7"; // Test edilecek konuşma ID'si
+  const conversationId = "6878ada76b6f1d074b82f6df"; // Test edilecek konuşma ID'si
 
   socket.emit("join_room", conversationId);
 

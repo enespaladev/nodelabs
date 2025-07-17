@@ -28,14 +28,14 @@ const generateAutoMessages = async () => {
   const messagePairs = [];
   for (let i = 0; i < shuffled.length - 1; i += 2) {
     const sender = shuffled[i];
-    const receiver = shuffled[i + 1];
+    const recipient = shuffled[i + 1];
 
     const content = generateRandomMessage();
     const sendDate = new Date(); // gerçek senaryoda ileri saat olabilir
 
     messagePairs.push({
       sender: sender._id,
-      receiver: receiver._id,
+      recipient: recipient._id,
       content,
       sendDate,
       isQueued: false,

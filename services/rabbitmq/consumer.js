@@ -2,42 +2,51 @@
 const amqp = require("amqplib");
 const AutoMessage = require("../../models/AutoMessage");
 const Message = require("../../models/Message");
-const io = global.io;
 
 const QUEUE_NAME = "message_sending_queue";
 
-const startConsumer = async () => {
+const startConsumer = async (io) => {
   const connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://localhost");
   const channel = await connection.createChannel();
   await channel.assertQueue(QUEUE_NAME, { durable: true });
 
-  channel.consume(QUEUE_NAME, async (msg) => {
-    if (msg !== null) {
-      const content = JSON.parse(msg.content.toString());
+  channel.consume(
+    QUEUE_NAME,
+    async (msg) => {
+      if (msg !== null) {
+        const content = JSON.parse(msg.content.toString());
 
-      const savedMessage = await Message.create({
-        sender: content.sender,
-        receiver: content.receiver,
-        content: content.content,
-        timestamp: new Date()
-      });
+        console.log("🔍 Gelen mesaj içeriği:", content);
 
-      io.to(content.receiver).emit("message_received", savedMessage);
+        const savedMessage = await Message.create({
+          sender: content.sender,
+          recipient: content.recipient,
+          content: content.content,
+          conversationId: content.conversationId,
+          timestamp: new Date(),
+        });
 
-      await AutoMessage.updateOne(
-        { sender: content.sender, receiver: content.receiver, content: content.content },
-        { isSent: true }
-      );
+        // socket.io ile alıcıya mesaj gönder
+        io.to(content.recipient).emit("message_received", {
+          conversationId: content.conversationId,
+          sender: content.sender,
+          content: content.content,
+          createdAt: savedMessage.createdAt,
+        });
 
-      channel.ack(msg);
-    }
-  }, {
-    noAck: false
-  });
+        // AutoMessage kaydını güncelle
+        await AutoMessage.updateOne(
+          { _id: content.autoMessageId },
+          { isSent: true }
+        );
 
-  console.log("RabbitMQ consumer started.");
+        channel.ack(msg);
+      }
+    },
+    { noAck: false }
+  );
+
+  console.log("✅ RabbitMQ consumer started.");
 };
 
-module.exports = {
-  startConsumer
-};
+module.exports = { startConsumer };

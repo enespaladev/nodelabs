@@ -14,6 +14,7 @@ const userRoutes = require('./routes/user.routes');
 const messageRoutes = require('./routes/message.routes');
 const conversationRoutes = require('./routes/conversation.routes');
 const { socketHandler } = require('./sockets/socketHandler');
+require("./crons/autoMessageScheduler"); // Dosya yolunu uygun şekilde ayarla
 
 dotenv.config();
 
@@ -48,7 +49,7 @@ app.get('/', (req, res) => {
 (async () => {
   await connectDB();
   await connectRedis();
-  await startConsumer(); // RabbitMQ Consumer başlat
+  await startConsumer(io); // RabbitMQ Consumer başlat
 
   server.listen(process.env.PORT || 5000, () => {
     console.log(`🚀 Server is running on port ${process.env.PORT || 5000}`);
