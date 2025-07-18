@@ -80,7 +80,7 @@ router.post('/login', loginValidator, validate, authLimiter, authController.logi
  *       401:
  *         description: Refresh token geçersiz veya süresi dolmuş
  */
-router.post('/refresh', authController.refresh);
+router.post('/refresh', authLimiter, authController.refresh);
 /**
  * @swagger
  * /auth/logout:
@@ -106,6 +106,6 @@ router.post('/logout', authController.logout);
  *       401:
  *         description: Yetkisiz (token geçersiz veya eksik)
  */
-router.get('/me', authMiddleware, authController.me);
+router.get('/me', authMiddleware, authLimiter, authController.me);
 
 module.exports = router;

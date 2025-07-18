@@ -12,10 +12,10 @@ const init = async () => {
       connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://localhost");
       channel = await connection.createChannel();
       await channel.assertQueue(QUEUE_NAME, { durable: true });
-      console.log("✅ RabbitMQ bağlantısı başarılı");
+      console.log("RabbitMQ bağlantısı başarılı");
     }
   } catch (error) {
-    console.error("❌ RabbitMQ bağlantı hatası:", error);
+    console.error("RabbitMQ bağlantı hatası:", error);
     throw error;
   }
 };
@@ -31,9 +31,9 @@ const publishToQueue = async (message) => {
       { persistent: true }
     );
     
-    console.log("✅ Mesaj kuyruğa gönderildi:", message.content);
+    console.log("Mesaj kuyruğa gönderildi:", message.content);
   } catch (error) {
-    console.error("❌ Kuyruğa gönderim hatası:", error);
+    console.error("Kuyruğa gönderim hatası:", error);
   }
 };
 

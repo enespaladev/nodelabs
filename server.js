@@ -5,9 +5,7 @@ const socketIO = require('socket.io');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const { connectDB } = require('./config/db');
-// const { connectRedis } = require('./config/redis');
 const { connectRedis } = require('./services/redis.service');
-const { initRabbitMQ } = require('./config/rabbitmq');
 const { startConsumer } = require('./services/rabbitmq/consumer');
 
 const authRoutes = require('./routes/auth.routes');
@@ -23,6 +21,9 @@ const logger = require('./config/logger');
 const errorMiddleware = require('./middlewares/error.middleware');
 const searchRoutes = require('./routes/search.routes');
 
+const Sentry = require('@sentry/node');
+const { nodeProfilingIntegration } = require("@sentry/profiling-node");
+
 dotenv.config();
 
 console.log('SERVER STARTING...');
@@ -33,6 +34,18 @@ const io = socketIO(server, {
   cors: {
     origin: '*',
   },
+});
+
+Sentry.init({
+  dsn: "https://8b2b5f1aa404de9b7d23f177deccc4b9@o4509688697651200.ingest.de.sentry.io/4509688699093072",
+  sendDefaultPii: true,
+  integrations: [
+    nodeProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+  _experiments: { enableLogs: true },
+  environment: process.env.NODE_ENV || 'development'
 });
 
 global.io = io;
@@ -51,12 +64,19 @@ app.use('/api', onlineRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/search', searchRoutes);
 
-// Root Test Route
 app.get('/', (req, res) => {
   res.send('Nodelabs Backend is running');
 });
 
+app.use(errorMiddleware);
+
+app.get('/api/crash-test', (req, res) => {
+  throw new Error("Sentry test hatası");
+});
+
 logger.info('Sunucu başlatılıyor...');
+
+Sentry.setupExpressErrorHandler(app);
 
 // Veritabanı ve servis bağlantıları
 (async () => {
@@ -70,8 +90,3 @@ logger.info('Sunucu başlatılıyor...');
 })();
 
 socketHandler(io);
-
-// const PORT = process.env.PORT || 5000;
-// server.listen(PORT, () => {
-//   console.log(`Sunucu ${PORT} portunda çalışıyor...`);
-// });
