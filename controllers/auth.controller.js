@@ -53,7 +53,7 @@ exports.logout = async (req, res) => {
   res.json({ message: 'Başarıyla çıkış yapıldı.' });
 };
 
-exports.refresh = async (req, res) => {
+exports.refresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
