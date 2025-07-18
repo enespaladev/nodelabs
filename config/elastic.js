@@ -1,7 +1,7 @@
 const { Client } = require('@elastic/elasticsearch');
 
 const elasticClient = new Client({
-  node: 'http://localhost:9200',
+  node: 'http://elasticsearch:9200',
   // auth eklemek istersen: auth: { username: 'elastic', password: 'your_password' }
 });
 

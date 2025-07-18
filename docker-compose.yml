@@ -1,4 +1,29 @@
+version: '3.8'
+
 services:
+  app:
+    container_name: nodelabs_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - redis
+      - rabbitmq
+      - elasticsearch
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/nodelabs
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET=your_jwt_secret
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+    volumes:
+      - .:/app
+    command: npm start
+
   mongodb:
     image: mongo
     container_name: mongodb
@@ -20,9 +45,9 @@ services:
       - "5672:5672"     # AMQP
       - "15672:15672"   # Web UI
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-      
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
     container_name: elasticsearch
@@ -31,5 +56,6 @@ services:
       - xpack.security.enabled=false
     ports:
       - "9200:9200"
+
 volumes:
   mongo_data:

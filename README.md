@@ -7,28 +7,30 @@ Node.js, Express, Socket.IO ve MongoDB ile oluşturulmuş, RabbitMQ ile mesaj ku
 - Socket.IO ile gerçek zamanlı mesajlaşma
 - JWT ile kullanıcı kimlik doğrulama ve yetkilendirme
 - Mesaj geçmişi ve sohbet yönetimi
-- Otomatik mesaj planlama sistemi
-- API endpoint'leri için hız sınırlama
+- Otomatik mesaj planlama sistemi (cron + queue)
+- API endpoint'leri için istek sınırlama
 - RabbitMQ ile mesaj kuyruklama
-- Redis ile önbellekleme
+- Redis ile önbellekleme ve online kullanıcı takibi
 - Elasticsearch ile mesaj arama
 - Swagger ile API dokümantasyonu
-- Kapsamlı hata yönetimi ve loglama
-- Çevrimiçi kullanıcı takibi
+- Helmet ve Rate Limit ile güvenlik
+- Winston ile loglama
+- Sentry ile merkezi hata izleme
 
 ## Teknoloji Altyapısı
 
 - **Backend:** Node.js, Express.js
 - **Gerçek Zamanlı İletişim:** Socket.IO
-- **Veritabanı:** MongoDB ve Mongoose ODM
+- **Veritabanı:** MongoDB (Mongoose ODM)
 - **Önbellekleme:** Redis
 - **Mesaj Kuyruğu:** RabbitMQ
 - **Arama Motoru:** Elasticsearch
 - **API Dokümantasyonu:** Swagger UI
 - **Güvenlik:** 
   - JWT Kimlik Doğrulama
-  - Helmet ile güvenlik başlıkları
+  - Helmet
   - Express Rate Limit
+  - Validation
   - CORS etkin
 
 ## Proje Yapısı
@@ -48,7 +50,6 @@ Node.js, Express, Socket.IO ve MongoDB ile oluşturulmuş, RabbitMQ ile mesaj ku
 ├── routes/                # API rotaları
 ├── services/              # İş mantığı
 ├── sockets/               # Socket.IO işleyicileri
-└── utils/                 # Yardımcı fonksiyonlar
 ```
 
 ## Gereksinimler
@@ -57,13 +58,13 @@ Node.js, Express, Socket.IO ve MongoDB ile oluşturulmuş, RabbitMQ ile mesaj ku
 - MongoDB
 - Redis
 - RabbitMQ
-- Elasticsearch
+- Elasticsearch (v8.x önerilir)
 
 ## Kurulum
 
 1. Projeyi klonlayın:
    ```bash
-   git clone https://github.com/yourusername/nodelabs.git
+   git clone https://github.com/enespaladev/nodelabs.git
    ```
 
 2. Bağımlılıkları yükleyin:
@@ -81,11 +82,12 @@ Node.js, Express, Socket.IO ve MongoDB ile oluşturulmuş, RabbitMQ ile mesaj ku
    RABBITMQ_URL=rabbitmq_baglanti_adresiniz
    JWT_SECRET=jwt_gizli_anahtariniz
    ELASTICSEARCH_NODE=elasticsearch_baglanti_adresiniz
+   SENTRY_DSN=https://<your_sentry_key>@oXXXXX.ingest.sentry.io/XXXXX
    ```
 
 4. Sunucuyu başlatın:
    ```bash
-   npm start
+   npm run dev
    ```
 
 ## API Dokümantasyonu
@@ -119,6 +121,26 @@ API dokümantasyonuna sunucu çalışırken `/api-docs` endpoint'inden erişileb
    - RabbitMQ entegrasyonu
    - Mesaj kuyruklama ve işleme
    - Asenkron görev yönetimi
+
+## Arama Özelliği
+
+Elasticsearch ile mesaj içeriğinde tam metin arama:
+
+```http
+GET /api/search/messages?q=selam
+```
+
+> Not: Mesaj gönderimi sırasında otomatik olarak `messages` index'ine kaydedilir.
+
+---
+
+## Sentry ile Hata Takibi
+
+Sentry ile tüm runtime hataları izlenebilir ve dashboard üzerinden takip edilir.
+
+- `GET /api/crash-test` endpoint’i test içindir.
+
+---
 
 ## Güvenlik Özellikleri
 
