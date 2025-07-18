@@ -37,7 +37,7 @@ const io = socketIO(server, {
 });
 
 Sentry.init({
-  dsn: "https://8b2b5f1aa404de9b7d23f177deccc4b9@o4509688697651200.ingest.de.sentry.io/4509688699093072",
+  dsn: process.env.SENTRY_DSN,
   sendDefaultPii: true,
   integrations: [
     nodeProfilingIntegration(),
